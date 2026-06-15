@@ -1,4 +1,4 @@
-# Rated Uganda — Campus Service Request System
+# Rated Uganda — NEWS PLATFORM
 
 A modern, secure, and user-friendly web-based news platform providing reliable 
 and timely information to readers across Uganda.
@@ -8,7 +8,7 @@ and timely information to readers across Uganda.
 ## Project Overview
 
 The Rated Uganda project is a full-stack web application developed by Group 14 
-as part of the UCU Recess Bootcamp. It addresses challenges associated with 
+as part of the UCU Recess workshop practice. It addresses challenges associated with 
 limited access to localized news, outdated interfaces, and inefficient content 
 management by providing a centralized digital environment for publishing and 
 consuming news across Uganda.
@@ -81,7 +81,7 @@ Expected response:
 ```json
 {
   "status": "success",
-  "message": "Campus Service Request API is running"
+  "message": "Request API is running"
 }
 ```
 
