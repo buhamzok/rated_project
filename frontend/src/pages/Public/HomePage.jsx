@@ -1,7 +1,43 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { listArticles } from '../../api/articles';
 import { listCategories, listDistricts } from '../../api/categories';
 import ArticleCard from '../../components/ArticleCard';
+import { resolveImageUrl, isPlaceholderUrl } from '../../api/imageUtils';
+import { apiOrigin } from '../../api/client';
+
+const CHEVRON_RIGHT = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-UG', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function categoryIconColor(name) {
+  const map = {
+    Politics: '#dc2626',
+    Business: '#059669',
+    Sports: '#2563eb',
+    Technology: '#7c3aed',
+    Health: '#0891b2',
+  };
+  return map[name] || '#6b7280';
+}
+
+function categoryInitial(name) {
+  return name ? name.slice(0, 1) : 'N';
+}
+
+function resolveThumb(url) {
+  if (!url || isPlaceholderUrl(url)) return null;
+  const resolved = resolveImageUrl(url);
+  if (!resolved) return null;
+  return resolved.startsWith('/') ? `${apiOrigin}${resolved}` : resolved;
+}
 
 export default function HomePage() {
   const [articles, setArticles] = useState([]);
@@ -10,10 +46,19 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ category: '', district: '', search: '' });
+  const [breakingIndex, setBreakingIndex] = useState(0);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (articles.length < 2) return;
+    const id = setInterval(() => {
+      setBreakingIndex((i) => (i + 1) % Math.min(articles.length, 4));
+    }, 5000);
+    return () => clearInterval(id);
+  }, [articles.length]);
 
   async function loadData() {
     try {
@@ -50,9 +95,10 @@ export default function HomePage() {
 
   const isFiltering = filters.category || filters.district || filters.search;
   const hero = articles[0];
-  const grid = articles.slice(1, 5);
-  const sidebar = articles.slice(1, 8);
-  const featured = articles.slice(8, 11);
+  const breakingHeadlines = articles.slice(0, 4);
+  const latest = articles.slice(1, 6);
+  const latestNews = articles.slice(6, 14);
+  const featured = articles.slice(14, 17);
 
   const districtCounts = districts.map((d) => ({
     ...d,
@@ -61,6 +107,31 @@ export default function HomePage() {
 
   return (
     <div className="container">
+      {!isFiltering && breakingHeadlines.length >= 2 && (
+        <div className="breaking-strip">
+          <div className="breaking-inner">
+            <span className="badge badge-breaking">BREAKING NEWS</span>
+            <div className="breaking-headlines">
+              <Link to={`/article/${breakingHeadlines[breakingIndex].article_id}`}>
+                {breakingHeadlines[breakingIndex].title}
+              </Link>
+            </div>
+            <div className="breaking-dots">
+              {breakingHeadlines.map((_, i) => (
+                <button
+                  key={i}
+                  className={`breaking-dot ${i === breakingIndex ? 'active' : ''}`}
+                  onClick={() => setBreakingIndex(i)}
+                  aria-label={`Breaking headline ${i + 1}`}
+                  type="button"
+                />
+              ))}
+            </div>
+            {CHEVRON_RIGHT}
+          </div>
+        </div>
+      )}
+
       <form className="filters" onSubmit={applyFilters}>
         <input
           type="text"
@@ -92,16 +163,35 @@ export default function HomePage() {
             <div className="hero-main">
               {hero && <ArticleCard article={hero} size="hero" />}
             </div>
-            <aside className="sidebar">
+
+            <div className="mobile-hero-scroll">
+              {articles.slice(0, 3).map((a) => (
+                <ArticleCard key={a.article_id} article={a} size="hero" />
+              ))}
+            </div>
+
+            <aside className="hero-side">
               <h3>Latest Updates</h3>
-              <ul className="sidebar-list">
-                {sidebar.map((a) => (
-                  <li key={a.article_id}>
-                    <a href={`/article/${a.article_id}`}>{a.title}</a>
-                    <div className="card-meta">{new Date(a.published_at || a.created_at).toLocaleDateString()}</div>
-                  </li>
-                ))}
-              </ul>
+              <div className="sidebar-list">
+                {latest.map((a) => {
+                  const thumb = resolveThumb(a.cover_image_url);
+                  return (
+                    <div key={a.article_id} className="side-article">
+                      {thumb ? (
+                        <img className="side-thumb" src={thumb} alt={a.title} loading="lazy" />
+                      ) : (
+                        <div className="side-thumb-placeholder">{categoryInitial(a.category_name)}</div>
+                      )}
+                      <div>
+                        <div className="side-article-title">
+                          <Link to={`/article/${a.article_id}`}>{a.title}</Link>
+                        </div>
+                        <div className="card-meta">{formatDate(a.published_at || a.created_at)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
               <h3 style={{ marginTop: '1rem' }}>Popular Districts</h3>
               <ul className="sidebar-list">
@@ -114,12 +204,32 @@ export default function HomePage() {
             </aside>
           </section>
 
-          <section className="grid grid-3" style={{ marginBottom: '1.5rem' }}>
-            {grid.map((a) => <ArticleCard key={a.article_id} article={a} />)}
+          <nav className="category-row">
+            {categories.map((c) => (
+              <Link key={c.category_id} to={`/?category=${c.category_id}`} className="category-chip">
+                <span className="category-icon" style={{ backgroundColor: categoryIconColor(c.category_name) }}>{categoryInitial(c.category_name)}</span>
+                <span>{c.category_name}</span>
+              </Link>
+            ))}
+          </nav>
+
+          <section className="latest-news">
+            <div className="section-heading">
+              <h2>Latest News</h2>
+              <Link to="/">View all</Link>
+            </div>
+            <div className="grid grid-3">
+              {latestNews.length > 0 ? latestNews.map((a) => <ArticleCard key={a.article_id} article={a} />) : (
+                <div className="empty">No more articles.</div>
+              )}
+            </div>
           </section>
 
-          <section>
-            <h2 style={{ marginBottom: '0.75rem' }}>Featured Articles</h2>
+          <section style={{ marginBottom: '2rem' }}>
+            <div className="section-heading">
+              <h2>Featured Articles</h2>
+              <Link to="/">View all</Link>
+            </div>
             <div className="grid grid-3">
               {featured.length > 0 ? featured.map((a) => <ArticleCard key={a.article_id} article={a} />) : (
                 <div className="empty">No more articles.</div>

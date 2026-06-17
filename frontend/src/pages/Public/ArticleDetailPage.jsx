@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getArticle, addView } from '../../api/articles';
 import { listComments, createComment } from '../../api/categories';
 import { resolveImageUrl, isPlaceholderUrl } from '../../api/imageUtils';
@@ -9,6 +9,18 @@ import { useAuth } from '../../context/AuthContext';
 function formatDate(iso) {
   if (!iso) return '';
   return new Date(iso).toLocaleString('en-UG', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function categoryClass(name) {
+  const map = { Politics: 'politics', Business: 'business', Sports: 'sports', Technology: 'technology', Health: 'health' };
+  return map[name] || 'default';
+}
+
+function readTime(content) {
+  if (!content) return '1 min read';
+  const words = content.trim().split(/\s+/).length;
+  const minutes = Math.max(1, Math.round(words / 200));
+  return `${minutes} min read`;
 }
 
 export default function ArticleDetailPage() {
@@ -68,18 +80,21 @@ export default function ArticleDetailPage() {
 
   return (
     <div className="container article-detail">
-      <div className="card-meta" style={{ marginBottom: '0.5rem' }}>
-        {article.category_name && <span className="badge badge-default">{article.category_name}</span>}
-        {article.district_name && <span className="badge badge-default">{article.district_name}</span>}
-        {article.source_type === 'scraped' && <span className="badge badge-source">Scraped</span>}
-        <span>{formatDate(article.published_at)}</span>
+      <div className="article-detail-header">
+        <div className="card-meta" style={{ justifyContent: 'center', marginBottom: '0.5rem' }}>
+          {article.category_name && <span className={`badge badge-${categoryClass(article.category_name)}`}>{article.category_name}</span>}
+          {article.district_name && <span className="badge badge-default">{article.district_name}</span>}
+          {article.source_type === 'scraped' && <span className="badge badge-source">Scraped</span>}
+        </div>
+
+        <h1>{article.title}</h1>
+        <p className="byline">
+          By {attribution} • {formatDate(article.published_at)} • {article.views} views • {readTime(article.content)}
+        </p>
       </div>
 
-      <h1>{article.title}</h1>
-      <p style={{ color: 'var(--text-muted)' }}>By {attribution} • {article.views} views</p>
-
       {isPlaceholder ? (
-        <div className="card-img-placeholder" style={{ height: '300px', fontSize: '1.2rem' }}>
+        <div className="card-img-placeholder" style={{ height: '320px', fontSize: '1.2rem', marginBottom: '1rem' }}>
           {article.category_name || 'News'}
         </div>
       ) : (
@@ -98,12 +113,12 @@ export default function ArticleDetailPage() {
       </div>
 
       {article.source_type === 'scraped' && article.source_url && (
-        <p>
+        <p style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 2rem' }}>
           <a href={article.source_url} target="_blank" rel="noreferrer">Read original at {article.source_name}</a>
         </p>
       )}
 
-      <section style={{ marginTop: '2rem' }}>
+      <section className="comments-section">
         <h2>Comments ({comments.length})</h2>
         {comments.length === 0 && <p className="empty">No comments yet.</p>}
         {comments.map((c) => (
@@ -128,7 +143,7 @@ export default function ArticleDetailPage() {
             </button>
           </form>
         ) : (
-          <p><a href="/login">Login</a> to post a comment.</p>
+          <p><Link to="/login">Login</Link> to post a comment.</p>
         )}
       </section>
     </div>
