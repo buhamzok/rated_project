@@ -9,9 +9,19 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  function isValidEmail(email) {
+    return email.includes('@');
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+
+    if (!isValidEmail(form.email)) {
+      setError('Invalid email');
+      return;
+    }
+
     setLoading(true);
     try {
       await register(form);
