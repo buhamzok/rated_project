@@ -1,0 +1,1 @@
+[ { "code": "invalid_type", "expected": "number", "received": "string", "path": [ "category_id" ], "message": "Expected number, received string" }, { "code": "invalid_type", "expected": "number", "received": "string", "path": [ "district_id" ], "message": "Expected number, received string" } ]

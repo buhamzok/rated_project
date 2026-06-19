@@ -1,0 +1,20 @@
+name = "rateduganda-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+
+# Bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "rateduganda-db"
+database_id = "28809566-cd0d-410b-a053-e84f00d7e078"
+
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "rateduganda-uploads"
+
+[triggers]
+crons = ["0 * * * *", "0 0 * * *"]
+
+# Local development variables (do not put secrets here; use `wrangler secret put` for production)
+[vars]
+JWT_EXPIRES_IN = "7d"

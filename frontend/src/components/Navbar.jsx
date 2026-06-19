@@ -56,7 +56,8 @@ export default function Navbar() {
 
   const roleLinks = [
     { role: 'journalist', label: 'Journalist', to: '/journalist' },
-    { role: 'editor', label: 'Editor', to: '/editor' },
+    { role: 'editor', label: 'Editor Queue', to: '/editor' },
+    { role: 'editor', label: 'Articles', to: '/editor/articles' },
     { role: 'administrator', label: 'Admin', to: '/admin' },
     { role: 'super_admin', label: 'Admin', to: '/admin' },
   ];

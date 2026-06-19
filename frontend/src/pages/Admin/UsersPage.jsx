@@ -47,31 +47,56 @@ export default function UsersPage() {
     <div className="container">
       <AdminNav />
       <h1 className="page-title">Manage Users</h1>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Roles</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.user_id}>
-              <td>{u.full_name}</td>
-              <td>{u.email}</td>
-              <td>{u.roles || 'reader'}</td>
-              <td>
-                {!u.roles?.includes('reader') && <button className="btn btn-secondary" onClick={() => handleApprove(u.user_id)}>Approve Reader</button>}
-                {!u.roles?.includes('journalist') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'journalist')}>Make Journalist</button>}
-                {!u.roles?.includes('editor') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'editor')}>Make Editor</button>}
-                {!u.roles?.includes('administrator') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'administrator')}>Make Admin</button>}
-              </td>
+
+      <div className="table-scroll">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.user_id}>
+                <td>{u.full_name}</td>
+                <td>{u.email}</td>
+                <td>{u.roles || 'reader'}</td>
+                <td>
+                  {!u.roles?.includes('reader') && <button className="btn btn-secondary" onClick={() => handleApprove(u.user_id)}>Approve Reader</button>}
+                  {!u.roles?.includes('journalist') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'journalist')}>Make Journalist</button>}
+                  {!u.roles?.includes('editor') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'editor')}>Make Editor</button>}
+                  {!u.roles?.includes('administrator') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'administrator')}>Make Admin</button>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mobile-table">
+        {users.map((u) => (
+          <div key={u.user_id} className="mobile-table-row">
+            <div className="mobile-table-header">Name</div>
+            <div className="mobile-table-cell">{u.full_name}</div>
+
+            <div className="mobile-table-header">Email</div>
+            <div className="mobile-table-cell">{u.email}</div>
+
+            <div className="mobile-table-header">Roles</div>
+            <div className="mobile-table-cell">{u.roles || 'reader'}</div>
+
+            <div className="mobile-table-actions">
+              {!u.roles?.includes('reader') && <button className="btn btn-secondary" onClick={() => handleApprove(u.user_id)}>Approve Reader</button>}
+              {!u.roles?.includes('journalist') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'journalist')}>Make Journalist</button>}
+              {!u.roles?.includes('editor') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'editor')}>Make Editor</button>}
+              {!u.roles?.includes('administrator') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'administrator')}>Make Admin</button>}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

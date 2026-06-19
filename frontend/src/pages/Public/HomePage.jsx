@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { listArticles } from '../../api/articles';
 import { listCategories, listDistricts } from '../../api/categories';
 import ArticleCard from '../../components/ArticleCard';
 import { resolveImageUrl, isPlaceholderUrl } from '../../api/imageUtils';
-import { apiOrigin } from '../../api/client';
 
 const CHEVRON_RIGHT = (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,23 +32,68 @@ function categoryInitial(name) {
 }
 
 function resolveThumb(url) {
-  if (!url || isPlaceholderUrl(url)) return null;
-  const resolved = resolveImageUrl(url);
-  if (!resolved) return null;
-  return resolved.startsWith('/') ? `${apiOrigin}${resolved}` : resolved;
+  return resolveImageUrl(url);
+}
+
+function ArticleSlideshow({ articles }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (articles.length <= 1) return;
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % articles.length);
+    }, 6000);
+    return () => clearInterval(id);
+  }, [articles.length]);
+
+  if (articles.length === 0) return <div className="empty">No featured articles.</div>;
+
+  const current = articles[index];
+
+  return (
+    <div className="slideshow">
+      <div className="slideshow-card">
+        <ArticleCard article={current} size="large" />
+      </div>
+      {articles.length > 1 && (
+        <div className="slideshow-dots">
+          {articles.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`slideshow-dot ${i === index ? 'active' : ''}`}
+              onClick={() => setIndex(i)}
+              aria-label={`Show featured article ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function HomePage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filters, setFilters] = useState({ category: '', district: '', search: '' });
+  const [filters, setFilters] = useState({
+    category: searchParams.get('category') || '',
+    district: searchParams.get('district') || '',
+    search: searchParams.get('search') || '',
+  });
   const [breakingIndex, setBreakingIndex] = useState(0);
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  useEffect(() => {
+    if (filters.category || filters.district || filters.search) {
+      applyFilters();
+    }
   }, []);
 
   useEffect(() => {
@@ -78,7 +122,7 @@ export default function HomePage() {
   }
 
   async function applyFilters(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     try {
       const res = await listArticles(filters);
@@ -97,8 +141,8 @@ export default function HomePage() {
   const hero = articles[0];
   const breakingHeadlines = articles.slice(0, 4);
   const latest = articles.slice(1, 6);
-  const latestNews = articles.slice(6, 14);
-  const featured = articles.slice(14, 17);
+  const latestNews = articles.slice(1);
+  const featured = articles;
 
   const districtCounts = districts.map((d) => ({
     ...d,
@@ -216,10 +260,10 @@ export default function HomePage() {
           <section className="latest-news">
             <div className="section-heading">
               <h2>Latest News</h2>
-              <Link to="/">View all</Link>
+              <Link to="/news">View all</Link>
             </div>
             <div className="grid grid-3">
-              {latestNews.length > 0 ? latestNews.map((a) => <ArticleCard key={a.article_id} article={a} />) : (
+              {latestNews.slice(0, 6).length > 0 ? latestNews.slice(0, 6).map((a) => <ArticleCard key={a.article_id} article={a} />) : (
                 <div className="empty">No more articles.</div>
               )}
             </div>
@@ -228,13 +272,8 @@ export default function HomePage() {
           <section style={{ marginBottom: '2rem' }}>
             <div className="section-heading">
               <h2>Featured Articles</h2>
-              <Link to="/">View all</Link>
             </div>
-            <div className="grid grid-3">
-              {featured.length > 0 ? featured.map((a) => <ArticleCard key={a.article_id} article={a} />) : (
-                <div className="empty">No more articles.</div>
-              )}
-            </div>
+            <ArticleSlideshow articles={featured} />
           </section>
         </>
       )}

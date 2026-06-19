@@ -16,7 +16,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await login(form);
-      const { token, user } = res.data.data;
+      const { token, user } = res.data;
       doLogin(token, user);
       navigate('/');
     } catch (err) {
@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   return (
     <div className="container">
-      <div style={{ maxWidth: '420px', margin: '2rem auto', background: 'var(--card)', padding: '1.5rem', borderRadius: '8px' }}>
+      <div className="auth-card">
         <h1 className="page-title">Login</h1>
         {error && <div className="error">{error}</div>}
         <form className="form" onSubmit={handleSubmit}>
@@ -50,7 +50,7 @@ export default function LoginPage() {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <p className="auth-switch">
           Don't have an account? <Link to="/register">Register</Link>
         </p>
       </div>

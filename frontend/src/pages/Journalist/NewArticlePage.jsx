@@ -26,7 +26,12 @@ export default function NewArticlePage() {
     setError('');
     setLoading(true);
     try {
-      const res = await createArticle(form);
+      const payload = {
+        ...form,
+        category_id: form.category_id ? Number(form.category_id) : undefined,
+        district_id: form.district_id ? Number(form.district_id) : undefined,
+      };
+      const res = await createArticle(payload);
       setArticleId(res.data.data.article_id);
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Failed to save article');
@@ -96,7 +101,7 @@ export default function NewArticlePage() {
       </form>
 
       {articleId && (
-        <div style={{ marginTop: '1rem' }}>
+        <div className="upload-area">
           <label>Upload media (first image becomes cover)</label>
           <input type="file" accept="image/*" onChange={handleFile} />
         </div>

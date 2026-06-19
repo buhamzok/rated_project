@@ -9,7 +9,7 @@ export default function ReviewPage() {
   const [article, setArticle] = useState(null);
   const [categories, setCategories] = useState([]);
   const [districts, setDistricts] = useState([]);
-  const [decision, setDecision] = useState('approve');
+  const [decision, setDecision] = useState('approved');
   const [feedback, setFeedback] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [districtId, setDistrictId] = useState('');
@@ -50,8 +50,8 @@ export default function ReviewPage() {
       await reviewArticle(id, {
         decision,
         feedback,
-        category_id: categoryId || undefined,
-        district_id: districtId || undefined,
+        category_id: categoryId ? Number(categoryId) : undefined,
+        district_id: districtId ? Number(districtId) : undefined,
       });
       navigate('/editor');
     } catch (err) {
@@ -87,9 +87,9 @@ export default function ReviewPage() {
       <form className="form" onSubmit={handleSubmit}>
         <label>Decision</label>
         <select value={decision} onChange={(e) => setDecision(e.target.value)}>
-          <option value="approve">Approve</option>
-          {!isScraped && <option value="return">Return for Correction</option>}
-          <option value="reject">Reject</option>
+          <option value="approved">Approve</option>
+          {!isScraped && <option value="returned">Return for Correction</option>}
+          <option value="rejected">Reject</option>
         </select>
 
         <label>Category</label>

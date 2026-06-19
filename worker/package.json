@@ -1,0 +1,26 @@
+{
+  "name": "rateduganda-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc --noEmit",
+    "cf-typegen": "wrangler types",
+    "d1:migrate": "wrangler d1 execute rateduganda-db --file=./src/db/schema.sql",
+    "d1:seed": "wrangler d1 execute rateduganda-db --file=./src/db/seed.sql",
+    "d1:reset": "wrangler d1 execute rateduganda-db --command=\"PRAGMA foreign_keys=OFF;\""
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.5.0",
+    "hono": "^4.6.14",
+    "jose": "^5.9.6",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.96.0"
+  }
+}

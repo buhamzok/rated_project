@@ -5,6 +5,7 @@ import RoleGuard from './components/RoleGuard';
 
 import HomePage from './pages/Public/HomePage';
 import ArticleDetailPage from './pages/Public/ArticleDetailPage';
+import NewsPage from './pages/Public/NewsPage';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import DashboardPage from './pages/Journalist/DashboardPage';
@@ -12,6 +13,7 @@ import NewArticlePage from './pages/Journalist/NewArticlePage';
 import EditArticlePage from './pages/Journalist/EditArticlePage';
 import QueuePage from './pages/Editor/QueuePage';
 import ReviewPage from './pages/Editor/ReviewPage';
+import PublishedArticlesPage from './pages/Editor/PublishedArticlesPage';
 import UsersPage from './pages/Admin/UsersPage';
 import CategoriesPage from './pages/Admin/CategoriesPage';
 import DistrictsPage from './pages/Admin/DistrictsPage';
@@ -26,6 +28,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/article/:id" element={<ArticleDetailPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
@@ -35,6 +38,7 @@ function App() {
 
             <Route path="/editor" element={<RoleGuard roles={['editor', 'super_admin']}><QueuePage /></RoleGuard>} />
             <Route path="/editor/review/:id" element={<RoleGuard roles={['editor', 'super_admin']}><ReviewPage /></RoleGuard>} />
+            <Route path="/editor/articles" element={<RoleGuard roles={['editor', 'super_admin', 'administrator']}><PublishedArticlesPage /></RoleGuard>} />
 
             <Route path="/admin" element={<RoleGuard roles={['administrator', 'super_admin']}><UsersPage /></RoleGuard>} />
             <Route path="/admin/categories" element={<RoleGuard roles={['administrator', 'super_admin']}><CategoriesPage /></RoleGuard>} />

@@ -15,4 +15,5 @@ export const uploadMedia = (id, file) => {
 export const getMyArticles = () => client.get('/articles/mine');
 export const getEditorQueue = () => client.get('/articles/queue/editor');
 export const reviewArticle = (id, data) => client.post(`/articles/${id}/review`, data);
+export const deleteArticle = (id) => client.delete(`/articles/${id}`);
 export const addView = (id) => client.post(`/articles/${id}/views`);

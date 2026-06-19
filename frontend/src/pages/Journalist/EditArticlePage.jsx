@@ -47,7 +47,12 @@ export default function EditArticlePage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await updateArticle(id, form);
+      const payload = {
+        ...form,
+        category_id: form.category_id ? Number(form.category_id) : undefined,
+        district_id: form.district_id ? Number(form.district_id) : undefined,
+      };
+      await updateArticle(id, payload);
       navigate('/journalist');
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Failed to update article');

@@ -26,7 +26,7 @@ export default function RegisterPage() {
 
   return (
     <div className="container">
-      <div style={{ maxWidth: '420px', margin: '2rem auto', background: 'var(--card)', padding: '1.5rem', borderRadius: '8px' }}>
+      <div className="auth-card">
         <h1 className="page-title">Register</h1>
         {error && <div className="error">{error}</div>}
         {success && <div className="loading" style={{ color: 'green' }}>{success}</div>}
@@ -63,7 +63,7 @@ export default function RegisterPage() {
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <p className="auth-switch">
           Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>

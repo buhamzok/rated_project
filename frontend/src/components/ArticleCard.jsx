@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { resolveImageUrl, isPlaceholderUrl } from '../api/imageUtils';
-import { apiOrigin } from '../api/client';
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -30,15 +29,41 @@ function excerpt(text, max = 140) {
 export default function ArticleCard({ article, size = 'medium' }) {
   const [imgError, setImgError] = useState(false);
   const rawUrl = article.cover_image_url;
-  let resolvedUrl = resolveImageUrl(rawUrl);
-  if (resolvedUrl && resolvedUrl.startsWith('/')) {
-    resolvedUrl = `${apiOrigin}${resolvedUrl}`;
-  }
+  const resolvedUrl = resolveImageUrl(rawUrl);
   const isPlaceholder = !resolvedUrl || isPlaceholderUrl(rawUrl) || imgError;
 
   const attribution = article.source_type === 'scraped'
     ? (article.source_name ? `Source: ${article.source_name}` : 'Scraped')
     : (article.journalist_name || 'Staff writer');
+
+  if (size === 'large') {
+    return (
+      <article className="card card-large">
+        {isPlaceholder ? (
+          <div className="card-img-placeholder" style={{ backgroundColor: getCategoryColor(article.category_name) }}>{article.category_name || 'News'}</div>
+        ) : (
+          <img className="card-img" src={resolvedUrl} alt={article.title} loading="lazy" onError={() => setImgError(true)} />
+        )}
+        <div className="card-body">
+          <div className="card-meta">
+            {article.category_name && <span className={`badge badge-${categoryClass(article.category_name)}`}>{article.category_name}</span>}
+            {article.source_type === 'scraped' && <span className="badge badge-source">Scraped</span>}
+            <span>{formatDate(article.published_at || article.created_at)}</span>
+            <span>{readTime(article.content)}</span>
+          </div>
+          <h3 className="card-title">
+            <Link to={`/article/${article.article_id}`}>{article.title}</Link>
+          </h3>
+          <p className="card-excerpt">{excerpt(article.content, 200)}</p>
+          <div className="card-meta">
+            <span>{attribution}</span>
+            {article.district_name && <span>• {article.district_name}</span>}
+            {article.views !== undefined && <span>• {article.views} views</span>}
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   if (size === 'hero') {
     return (
@@ -56,7 +81,7 @@ export default function ArticleCard({ article, size = 'medium' }) {
             <span>{formatDate(article.published_at || article.created_at)}</span>
             <span>{readTime(article.content)}</span>
           </div>
-          <h2 className="card-title">
+          <h2 className="card-title hero-title">
             <Link to={`/article/${article.article_id}`}>{article.title}</Link>
           </h2>
           <p className="hero-excerpt">{excerpt(article.content)}</p>
