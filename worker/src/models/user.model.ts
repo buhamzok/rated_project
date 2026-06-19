@@ -101,3 +101,7 @@ export async function findAllPending(db: D1Client): Promise<UserWithRoles[]> {
     return !userRoles.some(r => privileged.includes(r));
   });
 }
+
+export async function remove(db: D1Client, userId: number): Promise<void> {
+  await db.run('DELETE FROM users WHERE user_id = ?', [userId]);
+}

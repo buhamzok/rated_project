@@ -104,3 +104,24 @@ export async function assignRole(c: Context<{ Bindings: Env; Variables: { user: 
 
   return c.json({ message: `Role ${parsed.role_name} assigned` });
 }
+
+export async function deleteUser(c: Context<{ Bindings: Env; Variables: { user: AuthenticatedUser } }>) {
+  const currentUser = getUser(c);
+  const targetUserId = Number(c.req.param('id'));
+  const db = buildD1(c.env.DB);
+
+  if (currentUser.user_id === targetUserId) {
+    throw new AppError('You cannot delete your own account', 400, 'SELF_DELETE');
+  }
+
+  const target = await userModel.findById(db, targetUserId);
+  if (!target) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+
+  const targetRoles = await userModel.getRoles(db, targetUserId);
+  if (targetRoles.includes('super_admin') && !currentUser.roles.includes('super_admin')) {
+    throw new AppError('Only super admins can delete super admins', 403, 'FORBIDDEN');
+  }
+
+  await userModel.remove(db, targetUserId);
+  return c.json({ message: 'User deleted' });
+}

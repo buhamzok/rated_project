@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listUsers, approveUser, assignRole } from '../../api/admin';
+import { listUsers, approveUser, assignRole, deleteUser } from '../../api/admin';
 import AdminNav from '../../components/AdminNav';
 
 export default function UsersPage() {
@@ -40,6 +40,16 @@ export default function UsersPage() {
     }
   }
 
+  async function handleDelete(id, name) {
+    if (!window.confirm(`Are you sure you want to delete ${name}?`)) return;
+    try {
+      await deleteUser(id);
+      loadUsers();
+    } catch (err) {
+      alert(err.response?.data?.error?.message || 'Delete failed');
+    }
+  }
+
   if (loading) return <div className="loading">Loading users...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -64,11 +74,12 @@ export default function UsersPage() {
                 <td>{u.full_name}</td>
                 <td>{u.email}</td>
                 <td>{u.roles || 'reader'}</td>
-                <td>
+                <td style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {!u.roles?.includes('reader') && <button className="btn btn-secondary" onClick={() => handleApprove(u.user_id)}>Approve Reader</button>}
                   {!u.roles?.includes('journalist') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'journalist')}>Make Journalist</button>}
                   {!u.roles?.includes('editor') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'editor')}>Make Editor</button>}
                   {!u.roles?.includes('administrator') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'administrator')}>Make Admin</button>}
+                  <button className="btn btn-danger" onClick={() => handleDelete(u.user_id, u.full_name)}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -93,6 +104,7 @@ export default function UsersPage() {
               {!u.roles?.includes('journalist') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'journalist')}>Make Journalist</button>}
               {!u.roles?.includes('editor') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'editor')}>Make Editor</button>}
               {!u.roles?.includes('administrator') && <button className="btn btn-secondary" onClick={() => handleRole(u.user_id, 'administrator')}>Make Admin</button>}
+              <button className="btn btn-danger" onClick={() => handleDelete(u.user_id, u.full_name)}>Delete</button>
             </div>
           </div>
         ))}

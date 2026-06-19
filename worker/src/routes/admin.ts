@@ -10,5 +10,6 @@ app.get('/users', authenticate, requireRole('administrator', 'super_admin'), adm
 app.get('/users/pending', authenticate, requireRole('administrator', 'super_admin'), adminController.listPendingUsers);
 app.patch('/users/:id/approve', authenticate, requireRole('administrator', 'super_admin'), adminController.approveUser);
 app.patch('/users/:id/roles', authenticate, requireRole('administrator', 'super_admin'), adminController.assignRole);
+app.delete('/users/:id', authenticate, requireRole('administrator', 'super_admin'), adminController.deleteUser);
 
 export default app;
