@@ -58,7 +58,7 @@ export default function ArticleDetailPage() {
     if (!commentText.trim()) return;
     setSubmitting(true);
     try {
-      await createComment({ article_id: id, comment_text: commentText });
+      await createComment({ article_id: Number(id), comment_text: commentText });
       setCommentText('');
       const res = await listComments(id);
       setComments(res.data.data);
